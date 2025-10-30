@@ -18,15 +18,25 @@ Launch Front-end:
 
 > npm run start;
 
+### Docker network
+
+network create bobapp-net
+
+
 ### Docker
+
 
 Build the container:
 
 > docker build -t bobapp-front .  
 
+docker network connect bobapp-net bobapp-front
+
 Start the container:
 
-> docker run -p 8080:8080 --name bobapp-front -d bobapp-front
+
+docker run --network bobapp-net -p 4200:80 --name bobapp-front -d bobapp-front
+
 
 ## Back-end
 
@@ -52,6 +62,9 @@ Build the container:
 
 > docker build -t bobapp-back .  
 
+docker network connect bobapp-net bobapp-back
+
 Start the container:
 
-> docker run -p 8080:8080 --name bobapp-back -d bobapp-back 
+docker run --network bobapp-net -p 8080:8080 --name bobapp-back -d bobapp-back
+
