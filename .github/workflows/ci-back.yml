@@ -40,9 +40,8 @@ jobs:
 
       - name: Build and analyze with SonarCloud
         working-directory: back
-          run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-              -Dsonar.projectKey=javap10 \
-              -Dsonar.projectBaseDir=back
-          env:
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACK }}
-#test
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACK }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          -Dsonar.projectKey=Loutchanow_javap10 \
+          -Dsonar.projectBaseDir=back
