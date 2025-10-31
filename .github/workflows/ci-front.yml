@@ -33,7 +33,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      # 4️⃣ Build front & run SonarScanner
+      # 4️⃣ Build front & run SonarCloud
       - name: Build and analyze front
         working-directory: front
         env:
@@ -44,7 +44,8 @@ jobs:
           npx sonar-scanner \
             -Dsonar.projectKey=Loutchanow_javap10 \
             -Dsonar.organization=loutchanow \
-            -Dsonar.sources=. \
+            -Dsonar.sources=src \
+            -Dsonar.tests=src \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.exclusions=node_modules/** \
             -Dsonar.c.file.suffixes=- \
