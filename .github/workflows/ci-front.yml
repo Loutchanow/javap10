@@ -45,4 +45,8 @@ jobs:
             -Dsonar.projectKey=Loutchanow_javap10 \
             -Dsonar.organization=loutchanow \
             -Dsonar.sources=. \
-            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.exclusions=node_modules/** \
+            -Dsonar.c.file.suffixes=- \
+            -Dsonar.cpp.file.suffixes=- \
+            -Dsonar.objc.file.suffixes=-
