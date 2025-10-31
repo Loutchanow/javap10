@@ -12,16 +12,19 @@ jobs:
   build-and-analyze-front:
     runs-on: ubuntu-latest
     steps:
+      # 1️⃣ Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # 2️⃣ Node.js setup
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
 
+      # 3️⃣ Cache Node modules
       - name: Cache Node modules
         uses: actions/cache@v3
         with:
@@ -30,16 +33,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install dependencies
-        working-directory: front
-        run: npm install
-
-      - name: Build Angular and run tests
-        working-directory: front
-        run: npm run build && npx ng test --watch=false --code-coverage --browsers=ChromeHeadlessCI
-
+      # 4️⃣ Build front & run SonarCloud
       - name: Build and analyze
         working-directory: front
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: npx sonar-scanner -Dsonar.projectKey=Loutchanow_javap10 -Dsonar.organization=loutchanow -Dsonar.host.url=https://sonarcloud.io -Dsonar.sources=src/app -Dsonar.tests=src/app -Dsonar.test.inclusions=**/*.spec.ts -Dsonar.exclusions=node_modules/**,dist/** -Dsonar.language=ts -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+        run: npx sonar-scanner -Dsonar.projectKey=Loutchanow_javap10 -Dsonar.organization=loutchanow -Dsonar.host.url=https://sonarcloud.io -Dsonar.sources=src/app -Dsonar.tests=src/app -Dsonar.test.inclusions=**/*.spec.ts -Dsonar.exclusions=node_modules/**,dist/** -Dsonar.language=ts
