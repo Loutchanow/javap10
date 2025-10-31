@@ -45,3 +45,4 @@ jobs:
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
           -Dsonar.projectKey=Loutchanow_javap10 \
           -Dsonar.projectBaseDir=back
+#test
