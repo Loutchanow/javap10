@@ -37,5 +37,5 @@ jobs:
       - name: Build and analyze
         working-directory: front
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FRONT }}
-        run: npx sonar-scanner -Dsonar.projectKey=Loutchanow_javap10-front -Dsonar.organization=loutchanow -Dsonar.host.url=https://sonarcloud.io -Dsonar.sources=src/app -Dsonar.tests=src/app -Dsonar.test.inclusions=**/*.spec.ts -Dsonar.exclusions=node_modules/**,dist/** -Dsonar.language=ts
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: npx sonar-scanner -Dsonar.projectKey=Loutchanow_javap10 -Dsonar.organization=loutchanow -Dsonar.host.url=https://sonarcloud.io -Dsonar.sources=src/app -Dsonar.tests=src/app -Dsonar.test.inclusions=**/*.spec.ts -Dsonar.exclusions=node_modules/**,dist/** -Dsonar.language=ts
