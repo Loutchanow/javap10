@@ -36,7 +36,7 @@ jobs:
         working-directory: front
 
       - name: Run Angular tests with coverage
-        run: npm run test
+        run: npm run test:prod -- --browsers=ChromeHeadless
         working-directory: front
 
       - name: Upload Angular coverage report
