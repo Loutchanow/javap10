@@ -2,50 +2,59 @@ name: CI Workflow Back
 
 on:
   push:
-    branches: ['main', 'develop', 'feature/*', 'release/*', 'hotfix/*']
+    branches: ['feature/*', 'release/*', 'hotfix/*', 'develop', 'main']
     paths: ['back/**', '.github/workflows/**']
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main]
 
 jobs:
-  build-and-sonar:
+  tests-sonar:
+    name: Backend - Tests & Coverage
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+
     steps:
-      # 1️⃣ Checkout du code
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2️⃣ Set up Java 11 pour le build Maven
       - name: Set up Java 11
         uses: actions/setup-java@v4
         with:
           java-version: '11'
           distribution: 'temurin'
 
-      # 3️⃣ Cache Maven pour accélérer le build
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('back/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven
 
-      # 4️⃣ Build et tests (Jacoco inclus)
-      - name: Build and run tests
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Run backend tests with JaCoCo
         run: mvn clean verify
         working-directory: back
 
-      # 5️⃣ Set up Java 17 pour SonarScanner (scanner peut nécessiter JDK plus récent)
-      - name: Set up Java 17 for Sonar
-        uses: actions/setup-java@v4
+      - name: SonarCloud Scan - Back
+        uses: SonarSource/sonarcloud-github-action@v3
         with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      # 6️⃣ Analyse SonarCloud
-      - name: Build and analyze
-        working-directory: back
+          projectBaseDir: ./back
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Loutchanow_javap10 -Dsonar.organization=loutchanow -Dsonar.host.url=https://sonarcloud.io -Dsonar.sources=src/main/java -Dsonar.tests=src/test/java -Dsonar.java.binaries=target/classes
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACKEND}}
+
+      - name: Upload JaCoCo report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: back/target/site/jacoco
