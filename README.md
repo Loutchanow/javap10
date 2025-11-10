@@ -63,3 +63,5 @@ docker network connect bobapp-net bobapp-back
 Start the container:
 
 docker run --network bobapp-net -p 8080:8080 --name bobapp-back -d bobapp-back
+
+//test rules
