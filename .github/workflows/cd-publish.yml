@@ -30,7 +30,7 @@ jobs:
           context: ./back
           file: ./back/Dockerfile
           push: true
-          tags: loutchanow/bobapp-back:latest
+          tags: loutchanow/bobapp-back
 
       # Frontend
       - name: Build & Push frontend image
@@ -39,4 +39,4 @@ jobs:
           context: ./front
           file: ./front/Dockerfile
           push: true
-          tags: loutchanow/bobapp-front:latest
+          tags: loutchanow/bobapp-front
