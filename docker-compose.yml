@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  backend:
+    image: loutchanow/bobapp-back:latest # image sur Docker Hub
+    container_name: backend-service
+    ports:
+      - '8080:8080' # host:container
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - app-network
+
+  frontend:
+    image: loutchanow/bobapp-front:latest # image sur Docker Hub
+    container_name: frontend-service
+    ports:
+      - '4200:80' # host:container
+    depends_on:
+      - backend
+    environment:
+      - API_URL=http://backend:8080 # accès au backend via le nom du service
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
