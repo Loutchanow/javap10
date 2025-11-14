@@ -2,17 +2,20 @@ name: CD - Deploy to Docker Hub
 
 on:
   workflow_run:
-    workflows: ['CI Workflow Back', 'CI Workflow Front']
+    workflows:
+      - CI Workflow Back
+      - CI Workflow Front
     types:
       - completed
 
 jobs:
-  build-and-push:
+  deploy:
     name: Build & Push Docker Images
     runs-on: ubuntu-latest
 
-    # 🔥 Ne s'exécute QUE si la CI déclenchante est en succès
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: >
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.head_branch == 'main' }}
 
     steps:
       - name: Checkout code
@@ -27,7 +30,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Backend
       - name: Build & Push backend image
         uses: docker/build-push-action@v5
         with:
@@ -36,7 +38,6 @@ jobs:
           push: true
           tags: loutchanow/bobapp-back
 
-      # Frontend
       - name: Build & Push frontend image
         uses: docker/build-push-action@v5
         with:
