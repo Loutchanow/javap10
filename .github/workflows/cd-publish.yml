@@ -1,44 +1,115 @@
-name: CD - Deploy to Docker Hub
+# name: CD - Deploy to Docker Hub
+
+# on:
+#   workflow_run:
+#     workflows: ['CI Workflow Back', 'CI Workflow Front']
+#     types: [completed]
+#     branches: [main]
+
+# jobs:
+#   build-and-push:
+#     name: Build & Push Docker Images
+#     runs-on: ubuntu-latest
+#     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v3
+
+#       - name: Login to Docker Hub
+#         uses: docker/login-action@v3
+#         with:
+#           username: ${{ secrets.DOCKER_USERNAME }}
+#           password: ${{ secrets.DOCKER_PASSWORD }}
+
+#       # Backend
+#       - name: Build & Push backend image
+#         uses: docker/build-push-action@v5
+#         with:
+#           context: ./back
+#           file: ./back/Dockerfile
+#           push: true
+#           tags: loutchanow/bobapp-back
+
+#       # Frontend
+#       - name: Build & Push frontend image
+#         uses: docker/build-push-action@v5
+#         with:
+#           context: ./front
+#           file: ./front/Dockerfile
+#           push: true
+#           tags: loutchanow/bobapp-front
+
+name: Docker Front/back Build & Push
 
 on:
-  workflow_run:
-    workflows: ['CI Workflow Back', 'CI Workflow Front']
-    types: [completed]
+  push:
     branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: cd-main
+  cancel-in-progress: true
 
 jobs:
-  build-and-push:
-    name: Build & Push Docker Images
+  build-backend:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Build backend Docker image
+        uses: docker/build-push-action@v6.9.0
+        with:
+          context: ./back
+          file: back/Dockerfile
+          push: false # Ne pas pousser encore
+          tags: backend:${{ github.sha }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build frontend Docker image
+        uses: docker/build-push-action@v6.9.0
+        with:
+          context: front
+          file: front/Dockerfile
+          push: false
+          tags: frontend:${{ github.sha }}
+  push-to-dockerhub:
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      # Backend
-      - name: Build & Push backend image
-        uses: docker/build-push-action@v5
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push backend image
+        uses: docker/build-push-action@v6.9.0
         with:
           context: ./back
-          file: ./back/Dockerfile
+          file: back/Dockerfile
           push: true
-          tags: loutchanow/bobapp-back
+          tags: |
+            loutchanow/bobapp-back:${{ github.sha }}
+            loutchanow/bobapp-back:main
 
-      # Frontend
-      - name: Build & Push frontend image
-        uses: docker/build-push-action@v5
+      - name: Push frontend image
+        uses: docker/build-push-action@v6.9.0
         with:
-          context: ./front
-          file: ./front/Dockerfile
+          context: front
+          file: front/Dockerfile
           push: true
-          tags: loutchanow/bobapp-front
+          tags: |
+            loutchanow/bobapp-front:${{ github.sha }}
+            loutchanow/bobapp-front:main
